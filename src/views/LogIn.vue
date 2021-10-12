@@ -1,8 +1,8 @@
 <template>
-  <div class="signup">
+  <div class="login">
     <div class="hero is-info">
       <div class="hero-body has-text-centered">
-        <h1 class="title">Sign up</h1>
+        <h1 class="title">Log in</h1>
       </div>
     </div>
 
@@ -25,26 +25,19 @@
                 </div>
               </div>
 
-              <div class="field">
-                <label>Repeat password</label>
-                <div class="control">
-                  <input type="password" class="input" v-model="password2" />
-                </div>
-              </div>
-
               <div class="notification is-danger" v-if="errors.length">
                 <p v-for="error in errors" v-bind:key="error">{{ error }}</p>
               </div>
 
               <div class="field">
                 <div class="control">
-                  <button class="button is-dark">Sign up</button>
+                  <button class="button is-dark">Log in</button>
                 </div>
               </div>
             </form>
 
             <hr />Or
-            <router-link to="/log-in">click here</router-link>to log in!
+            <router-link to="/sign-up">click here</router-link>to sign up!
           </div>
         </div>
       </div>
@@ -59,13 +52,14 @@ export default {
     return {
       username: "",
       password: "",
-      password2: "",
       errors: [],
     };
   },
   methods: {
     submitForm() {
       console.log("submitForm");
+      axios.defaults.headers.common["Authorization"] = "";
+      localStorage.removeItem("token");
       this.errors = [];
       if (this.username === "") {
         this.errors.push("The username is missing!");
@@ -73,18 +67,19 @@ export default {
       if (this.password === "") {
         this.errors.push("The password is missing!");
       }
-      if (this.password !== this.password2) {
-        this.errors.push("The passwords are not matching!");
-      }
       if (!this.errors.length) {
         const formData = {
           username: this.username,
           password: this.password,
         };
         axios
-          .post("/api/v1/users/", formData)
+          .post("/api/v1/token/login/", formData)
           .then((response) => {
-            this.$router.push("/log-in");
+            const token = response.data.auth_token;
+            this.$store.commit("setToken", token);
+            axios.defaults.headers.common["Authorization"] = "Token " + token;
+            localStorage.setItem("token", token);
+            this.$router.push("/dashboard/my-account");
           })
           .catch((error) => {
             if (error.response) {
