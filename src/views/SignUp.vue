@@ -84,6 +84,7 @@ export default {
         axios
           .post("/api/v1/users/", formData)
           .then((response) => {
+            console.log(response);
             this.$router.push("/log-in");
           })
           .catch((error) => {

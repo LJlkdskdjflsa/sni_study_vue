@@ -16,8 +16,17 @@
 import axios from "axios";
 export default {
   methods: {
-    logout() {
+    async logout() {
       console.log("logout");
+      await axios
+        .post("/api/v1/token/logout/")
+        .then((response) => {
+          console.log(response);
+          console.log("Logged out");
+        })
+        .catch((error) => {
+          console.log(error);
+        });
       axios.defaults.headers.common["Authorization"] = "";
       localStorage.removeItem("token");
       this.$store.commit("removeToken");
